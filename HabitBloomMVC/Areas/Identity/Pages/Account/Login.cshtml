@@ -1,0 +1,155 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<section class="auth-page">
+    <div class="auth-section">
+
+        <div class="auth-wrapper">
+
+            <!-- LEFT IMAGE SECTION -->
+            <div class="auth-image-side">
+                <img src="~/images/login-bloom.jpg"
+                     alt="Pink lotus flowers"
+                     class="auth-image" />
+            </div>
+
+            <!-- RIGHT LOGIN FORM -->
+            <div class="auth-form-side">
+
+                <div class="auth-form-content">
+
+                    <p class="section-tag">✿ WELCOME BACK ✿</p>
+
+                    <h1 class="auth-heading">
+                        Welcome to <span>HabitBloom</span>
+                    </h1>
+
+                    <p class="auth-description">
+                        Continue your journey towards better habits
+                        and beautiful growth.
+                    </p>
+
+                    <form id="account" method="post"
+                          asp-route-returnUrl="@Model.ReturnUrl">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3"
+                             role="alert">
+                        </div>
+
+                        <!-- EMAIL -->
+                        <div class="mb-3">
+                            <label asp-for="Input.Email"
+                                   class="form-label">
+                                Email Address
+                            </label>
+
+                            <input asp-for="Input.Email"
+                                   class="form-control custom-input"
+                                   autocomplete="username"
+                                   aria-required="true"
+                                   placeholder="Enter your email" />
+
+                            <span asp-validation-for="Input.Email"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <!-- PASSWORD -->
+                        <div class="mb-3">
+                            <label asp-for="Input.Password"
+                                   class="form-label">
+                                Password
+                            </label>
+
+                            <input asp-for="Input.Password"
+                                   class="form-control custom-input"
+                                   autocomplete="current-password"
+                                   aria-required="true"
+                                   placeholder="Enter your password" />
+
+                            <span asp-validation-for="Input.Password"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <!-- REMEMBER ME -->
+                        <div class="login-options mb-4">
+                            <label asp-for="Input.RememberMe"
+                                   class="form-check-label">
+
+                                <input asp-for="Input.RememberMe"
+                                       class="form-check-input" />
+
+                                Remember me
+                            </label>
+                        </div>
+                        <div class="text-end mb-3">
+                            <a asp-page="./ForgotPassword"
+                               class="forgot-link">
+                                Forgot password?
+                            </a>
+                        </div>
+
+                        <!-- LOGIN BUTTON -->
+                        <button id="login-submit"
+                                type="submit"
+                                class="btn login-button w-100">
+
+                            Login
+                        </button>
+
+                    </form>
+
+                    <!-- REGISTER LINK -->
+                    <p class="signup-text mt-4">
+                        Don't have an account?
+
+                        <a asp-page="./Register"
+                           asp-route-returnUrl="@Model.ReturnUrl">
+                            Sign Up
+                        </a>
+                    </p>
+
+                    <!-- EXTERNAL LOGIN PROVIDERS -->
+                    @if (Model.ExternalLogins?.Count > 0)
+                    {
+                        <div class="mt-4">
+                            <p>Or login using:</p>
+
+                            <form id="external-account"
+                                  asp-page="./ExternalLogin"
+                                  asp-route-returnUrl="@Model.ReturnUrl"
+                                  method="post">
+
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    <button type="submit"
+                                            class="btn btn-outline-secondary"
+                                            name="provider"
+                                            value="@provider.Name">
+
+                                        @provider.DisplayName
+                                    </button>
+                                }
+
+                            </form>
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

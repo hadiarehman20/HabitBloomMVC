@@ -1,0 +1,43 @@
+﻿@page
+@model RegisterConfirmationModel
+
+@{
+    ViewData["Title"] = "Registration Complete";
+}
+
+<div class="confirmation-page">
+    <div class="confirmation-card">
+
+        <div class="confirmation-icon">✿</div>
+
+        <p class="confirmation-tag">WELCOME TO HABITBLOOM</p>
+
+        <h1>Your Journey <span>Begins!</span></h1>
+
+        <p class="confirmation-message">
+            Your account has been created successfully.
+            You're one step closer to building beautiful habits
+            and becoming your best self.
+        </p>
+
+        @if (Model.DisplayConfirmAccountLink)
+        {
+            <p class="confirmation-note">
+                Please confirm your account using the link below.
+            </p>
+
+            <a id="confirm-link"
+               href="@Model.EmailConfirmationUrl"
+               class="confirmation-button">
+                Confirm My Account
+            </a>
+        }
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="confirmation-home">
+            Back to Home
+        </a>
+
+    </div>
+</div>

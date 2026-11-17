@@ -1,0 +1,105 @@
+﻿@page
+@model RegisterModel
+
+@{
+    ViewData["Title"] = "Create Account";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Account - HabitBloom</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/style.css" />
+</head>
+
+<body>
+
+    <div class="auth-page">
+        <div class="auth-wrapper">
+
+            <div class="auth-image-side signup-image-side">
+                <img src="~/images/signup-flowers.jpg" alt="Flowers" />
+            </div>
+
+            <div class="auth-form-side">
+
+                <div class="auth-heading">
+                    <span class="auth-tag">✿  JOIN HABITBLOOM  ✿</span>
+                    <h1>Create Your <span>Account</span></h1>
+                    <p>Start your journey towards better habits and beautiful growth.</p>
+                </div>
+
+                <form id="registerForm"
+                      asp-route-returnUrl="@Model.ReturnUrl"
+                      method="post">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label">
+                            Email Address
+                        </label>
+                        <input asp-for="Input.Email"
+                               class="form-control custom-input"
+                               autocomplete="username"
+                               placeholder="Enter your email" />
+                        <span asp-validation-for="Input.Email"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Password" class="form-label">
+                            Password
+                        </label>
+                        <input asp-for="Input.Password"
+                               class="form-control custom-input"
+                               autocomplete="new-password"
+                               placeholder="Create a password" />
+                        <span asp-validation-for="Input.Password"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.ConfirmPassword" class="form-label">
+                            Confirm Password
+                        </label>
+                        <input asp-for="Input.ConfirmPassword"
+                               class="form-control custom-input"
+                               autocomplete="new-password"
+                               placeholder="Confirm your password" />
+                        <span asp-validation-for="Input.ConfirmPassword"
+                              class="text-danger"></span>
+                    </div>
+
+                    <button id="registerSubmit"
+                            type="submit"
+                            class="btn login-button w-100">
+                        Create Account
+                    </button>
+
+                </form>
+
+                <p class="signup-text">
+                    Already have an account?
+                    <a asp-page="./Login"
+                       asp-route-returnUrl="@Model.ReturnUrl">
+                        Login
+                    </a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+</body>
+</html>
