@@ -16,8 +16,11 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-    options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedEmail = false;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>();
 
 // MVC and Razor Pages
 builder.Services.AddControllersWithViews();
@@ -41,7 +44,6 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// IMPORTANT: Authentication must come before Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -53,6 +55,7 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.MapRazorPages();
 
 app.Run();

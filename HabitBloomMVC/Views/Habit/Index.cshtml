@@ -1,0 +1,381 @@
+﻿@model IEnumerable<HabitBloomMVC.Models.Habit>
+
+@{
+    ViewData["Title"] = "My Habits";
+
+    var completedHabitIds = ViewBag.CompletedHabitIds as List<int>
+                           ?? new List<int>();
+
+    var totalHabits = Model?.Count() ?? 0;
+    var completedCount = completedHabitIds.Count;
+    var progress = totalHabits > 0
+        ? (int)Math.Round((double)completedCount / totalHabits * 100)
+        : 0;
+}
+
+<style>
+    .habit-page {
+        padding: 40px;
+        min-height: 100vh;
+        background: #fffaf7;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .habit-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+        .habit-header h1 {
+            color: #6d3c50;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .habit-header p {
+            color: #8d7180;
+            margin-top: 8px;
+        }
+
+    .add-habit-btn {
+        background: #7b455c;
+        color: white;
+        padding: 12px 22px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+        .add-habit-btn:hover {
+            background: #633449;
+            color: white;
+        }
+
+    .progress-card {
+        background: white;
+        border: 1px solid #f0e1e7;
+        border-radius: 18px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(100, 50, 70, 0.04);
+    }
+
+    .progress-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        color: #6d3c50;
+        font-weight: 600;
+    }
+
+    .progress-track {
+        width: 100%;
+        height: 12px;
+        background: #f5e9ef;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: #a66b86;
+        border-radius: 20px;
+        transition: width 0.3s;
+    }
+
+    .habit-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 22px;
+    }
+
+    .habit-card {
+        background: white;
+        padding: 25px;
+        border-radius: 18px;
+        border: 1px solid #f0e1e7;
+        box-shadow: 0 4px 15px rgba(100, 50, 70, 0.05);
+        transition: 0.2s;
+    }
+
+        .habit-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(100, 50, 70, 0.08);
+        }
+
+        .habit-card h3 {
+            color: #6d3c50;
+            margin-bottom: 12px;
+            font-size: 25px;
+        }
+
+    .habit-category {
+        display: inline-block;
+        background: #f5e9ef;
+        color: #87556b;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .habit-card p {
+        color: #7e6b74;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .completion-status {
+        padding: 12px;
+        border-radius: 12px;
+        margin: 15px 0;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .completed-status {
+        background: #edf7ed;
+        color: #47794a;
+    }
+
+    .pending-status {
+        background: #fff6e9;
+        color: #987347;
+    }
+
+    .complete-btn {
+        background: #6e9b76;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 9px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .complete-btn:hover {
+            background: #567f5e;
+        }
+
+    .undo-btn {
+        background: #f5e9ef;
+        color: #7b455c;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 9px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .undo-btn:hover {
+            background: #ead7e1;
+        }
+
+    .habit-actions {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #f2e6eb;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .edit-btn {
+        display: inline-block;
+        background: #f5e9ef;
+        color: #7b455c;
+        padding: 9px 18px;
+        border-radius: 9px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+        .edit-btn:hover {
+            background: #ead7e1;
+            color: #633449;
+        }
+
+    .delete-habit-btn {
+        display: inline-block;
+        background: #fff0f2;
+        color: #b34d63;
+        padding: 9px 18px;
+        border-radius: 9px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+        .delete-habit-btn:hover {
+            background: #f8dfe4;
+            color: #92394e;
+        }
+
+    .empty-state {
+        background: white;
+        border: 1px dashed #d8bdca;
+        border-radius: 18px;
+        padding: 45px 20px;
+        text-align: center;
+        color: #8d7180;
+    }
+
+        .empty-state h2 {
+            color: #6d3c50;
+            margin-bottom: 12px;
+        }
+
+    @@media (max-width: 600px) {
+        .habit-page {
+            padding: 25px 15px;
+        }
+
+        .habit-header h1 {
+            font-size: 26px;
+        }
+
+        .habit-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="habit-page">
+
+    <div class="habit-header">
+        <div>
+            <h1>My Habits 🌷</h1>
+            <p>Small steps every day create beautiful changes.</p>
+        </div>
+
+        <a asp-controller="Habit"
+           asp-action="Create"
+           class="add-habit-btn">
+            + Add New Habit
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="progress-card">
+
+            <div class="progress-top">
+                <span>Today's Progress 🌱</span>
+                <span>@completedCount / @totalHabits completed (@progress%)</span>
+            </div>
+
+            <div class="progress-track">
+                <div class="progress-fill"
+                     style="width: @progress%">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="habit-grid">
+
+            @foreach (var habit in Model)
+            {
+                bool isCompleted = completedHabitIds.Contains(habit.HabitId);
+
+                <div class="habit-card">
+
+                    <h3>@habit.Name</h3>
+
+                    <span class="habit-category">
+                        @habit.Category
+                    </span>
+
+                    @if (!string.IsNullOrWhiteSpace(habit.Description))
+                    {
+                        <p>@habit.Description</p>
+                    }
+
+                    @if (isCompleted)
+                    {
+                        <div class="completion-status completed-status">
+                            ✓ Completed today! Great job 🌸
+                        </div>
+
+                        <form asp-controller="Habit"
+                              asp-action="UndoComplete"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@habit.HabitId" />
+
+                            <button type="submit" class="undo-btn">
+                                ↩ Undo Completion
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="completion-status pending-status">
+                            🌱 Not completed yet today
+                        </div>
+
+                        <form asp-controller="Habit"
+                              asp-action="Complete"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@habit.HabitId" />
+
+                            <button type="submit" class="complete-btn">
+                                ✓ Mark as Complete
+                            </button>
+                        </form>
+                    }
+
+                    <div class="habit-actions">
+
+                        <a asp-controller="Habit"
+                           asp-action="Edit"
+                           asp-route-id="@habit.HabitId"
+                           class="edit-btn">
+                            ✏️ Edit Habit
+                        </a>
+
+                        <a asp-controller="Habit"
+                           asp-action="Delete"
+                           asp-route-id="@habit.HabitId"
+                           class="delete-habit-btn">
+                            🗑️ Delete
+                        </a>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <h2>Your garden is waiting to bloom 🌱</h2>
+            <p>You haven't added any habits yet.</p>
+            <p>Start with one small habit today!</p>
+        </div>
+    }
+
+</div>

@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace HabitBloomMVC.Views.NewFolder1
+namespace HabitBloomMVC.Views.Habit
 {
-    public class IndexModel : PageModel
+    public class DeleteModel : PageModel
     {
         public void OnGet()
         {

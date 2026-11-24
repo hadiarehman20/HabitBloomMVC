@@ -1,0 +1,200 @@
+﻿@model HabitBloomMVC.Models.Habit
+
+@{
+    ViewData["Title"] = "Create Habit";
+}
+
+<style>
+    .create-page {
+        min-height: 100vh;
+        background: #fffaf7;
+        padding: 40px 20px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .create-card {
+        max-width: 650px;
+        margin: auto;
+        background: white;
+        padding: 35px;
+        border-radius: 22px;
+        border: 1px solid #f0e1e7;
+        box-shadow: 0 8px 25px rgba(100, 50, 70, 0.06);
+    }
+
+    .create-card h1 {
+        color: #6d3c50;
+        margin-bottom: 10px;
+        font-size: 30px;
+    }
+
+    .subtitle {
+        color: #8d7180;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 22px;
+    }
+
+    .form-group label {
+        display: block;
+        color: #6d3c50;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e5ccd7;
+        border-radius: 10px;
+        font-size: 15px;
+        box-sizing: border-box;
+        background: #fff;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #98647c;
+        box-shadow: 0 0 0 3px rgba(152, 100, 124, 0.12);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+    }
+
+    .validation {
+        color: #c04460;
+        font-size: 13px;
+    }
+
+    .buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .save-btn {
+        background: #7b455c;
+        color: white;
+        border: none;
+        padding: 12px 22px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .save-btn:hover {
+        background: #633449;
+    }
+
+    .cancel-btn {
+        background: #f5e9ef;
+        color: #7b455c;
+        padding: 12px 22px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    .cancel-btn:hover {
+        background: #ead7e1;
+    }
+
+    .habit-note {
+        margin-top: 25px;
+        padding: 15px;
+        border-radius: 12px;
+        background: #faf2f6;
+        color: #87556b;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+</style>
+
+<div class="create-page">
+    <div class="create-card">
+
+        <h1>Create a New Habit 🌱</h1>
+
+        <p class="subtitle">
+            Small habits grow into beautiful changes.
+            Start with something meaningful to you.
+        </p>
+
+        <form asp-controller="Habit" asp-action="Create" method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="validation"></div>
+
+            <!-- Habit Name -->
+            <div class="form-group">
+                <label asp-for="Name">Habit Name</label>
+
+                <input asp-for="Name"
+                       class="form-control"
+                       placeholder="e.g., Read for 20 minutes" />
+
+                <span asp-validation-for="Name" class="validation"></span>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+                <label asp-for="Category">Category</label>
+
+                <select asp-for="Category" class="form-control">
+                    <option value="">Select a category</option>
+                    <option value="Health">Health</option>
+                    <option value="Fitness">Fitness</option>
+                    <option value="Study">Study</option>
+                    <option value="Mindfulness">Mindfulness</option>
+                    <option value="Personal Growth">Personal Growth</option>
+                    <option value="Productivity">Productivity</option>
+                    <option value="Lifestyle">Lifestyle</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <span asp-validation-for="Category" class="validation"></span>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label asp-for="Description">Description (Optional)</label>
+
+                <textarea asp-for="Description"
+                          class="form-control"
+                          rows="4"
+                          placeholder="Why is this habit important to you?"></textarea>
+
+                <span asp-validation-for="Description" class="validation"></span>
+            </div>
+
+            <!-- Buttons -->
+            <div class="buttons">
+
+                <button type="submit" class="save-btn">
+                    🌷 Save Habit
+                </button>
+
+                <a asp-controller="Habit"
+                   asp-action="Index"
+                   class="cancel-btn">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+        <div class="habit-note">
+            🌱 Remember: You don't need to change everything at once.
+            One small step every day is enough to begin.
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,203 @@
+﻿@model HabitBloomMVC.Models.Habit
+
+@{
+    ViewData["Title"] = "Delete Habit";
+}
+
+<style>
+    .delete-page {
+        min-height: 100vh;
+        background: #fffaf7;
+        padding: 50px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .delete-card {
+        width: 100%;
+        max-width: 550px;
+        background: white;
+        padding: 40px;
+        border-radius: 24px;
+        border: 1px solid #f0e1e7;
+        box-shadow: 0 8px 25px rgba(100, 50, 70, 0.06);
+        text-align: center;
+    }
+
+    .delete-icon {
+        width: 75px;
+        height: 75px;
+        background: #f8edf2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 35px;
+        margin: 0 auto 20px;
+    }
+
+    .delete-card h1 {
+        color: #6d3c50;
+        font-size: 29px;
+        margin-bottom: 12px;
+    }
+
+    .delete-message {
+        color: #8d7180;
+        line-height: 1.7;
+        margin-bottom: 25px;
+    }
+
+    .habit-details {
+        background: #fffaf7;
+        border: 1px solid #f0e1e7;
+        border-radius: 16px;
+        padding: 22px;
+        margin: 25px 0;
+        text-align: left;
+    }
+
+        .habit-details h3 {
+            color: #6d3c50;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+    .habit-category {
+        display: inline-block;
+        background: #f5e9ef;
+        color: #87556b;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .habit-details p {
+        color: #7e6b74;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .warning {
+        color: #a15a6b;
+        font-size: 14px;
+        background: #fff3f4;
+        padding: 14px;
+        border-radius: 12px;
+        margin: 20px 0;
+        line-height: 1.6;
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 25px;
+    }
+
+    .delete-btn {
+        background: #b34d63;
+        color: white;
+        border: none;
+        padding: 12px 22px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .delete-btn:hover {
+            background: #92394e;
+        }
+
+    .cancel-btn {
+        background: #f5e9ef;
+        color: #7b455c;
+        padding: 12px 22px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+        .cancel-btn:hover {
+            background: #ead7e1;
+            color: #633449;
+        }
+
+    @@media (max-width: 500px) {
+        .delete-card {
+            padding: 25px 20px;
+        }
+
+            .delete-card h1 {
+                font-size: 24px;
+            }
+    }
+</style>
+
+<div class="delete-page">
+    <div class="delete-card">
+
+        <div class="delete-icon">
+            🗑️
+        </div>
+
+        <h1>Delete Habit?</h1>
+
+        <p class="delete-message">
+            Are you sure you want to remove this habit from your garden?
+            Please review it before continuing.
+        </p>
+
+        <div class="habit-details">
+
+            <h3>@Model.Name</h3>
+
+            <span class="habit-category">
+                @Model.Category
+            </span>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <p>@Model.Description</p>
+            }
+
+        </div>
+
+        <div class="warning">
+            ⚠️ This action will permanently delete this habit from your database.
+            You won't be able to recover it afterward.
+        </div>
+
+        <form asp-controller="Habit"
+              asp-action="Delete"
+              asp-route-id="@Model.HabitId"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="id" value="@Model.HabitId" />
+
+            <div class="buttons">
+
+                <button type="submit" class="delete-btn">
+                    Yes, Delete Habit
+                </button>
+
+                <a asp-controller="Habit"
+                   asp-action="Index"
+                   class="cancel-btn">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>

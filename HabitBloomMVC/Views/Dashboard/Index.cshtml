@@ -1,7 +1,24 @@
-﻿@{
+@model IEnumerable<HabitBloomMVC.Models.Habit>
+
+@{
     ViewData["Title"] = "HabitBloom | Dashboard";
     Layout = null;
+
+    var completedHabitIds = ViewBag.CompletedHabitIds as List<int> ?? new List<int>();
+    int totalHabits = ViewBag.TotalHabits ?? 0;
+    int completedToday = ViewBag.CompletedToday ?? 0;
+    int currentStreak = ViewBag.CurrentStreak ?? 0;
+
+    var habitProgress = totalHabits > 0
+        ? (int)Math.Round((double)completedToday / totalHabits * 100)
+        : 0;
+
+    var weeklyProgress = ViewBag.WeeklyProgress as List<int>
+                         ?? new List<int> { 0, 0, 0, 0, 0, 0, 0 };
+
+    var weekDays = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 }
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,10 +27,25 @@
     <title>HabitBloom | Dashboard</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+
+    <style>
+        .hb-calendar-grid button.has-completion {
+            border: 2px solid #8b4a61;
+            position: relative;
+        }
+
+            .hb-calendar-grid button.has-completion::after {
+                content: "";
+                position: absolute;
+                bottom: 3px;
+                width: 5px;
+                height: 5px;
+                border-radius: 50%;
+                background-color: #8b4a61;
+            }
+    </style>
 </head>
 
 <body class="hb-dashboard">
@@ -22,6 +54,7 @@
 
         <!-- SIDEBAR -->
         <aside class="hb-sidebar">
+
             <a asp-controller="Home" asp-action="Index" class="hb-logo">
                 <span>❀</span> HabitBloom
             </a>
@@ -29,24 +62,50 @@
             <p class="hb-menu-label">MENU</p>
 
             <nav class="hb-navigation">
-                <a href="#" class="active"><span>⌂</span> Dashboard</a>
-                <a href="#habits"><span>✿</span> My Habits</a>
-                <a href="#progress"><span>▥</span> Progress</a>
-                <a href="#calendar"><span>▦</span> Calendar</a>
-                <a href="#wellness"><span>♡</span> Wellness</a>
+
+                <a asp-controller="Dashboard" asp-action="Index" class="active">
+                    <span>⌂</span> Dashboard
+                </a>
+
+                <a asp-controller="Habit" asp-action="Index">
+                    <span>✿</span> My Habits
+                </a>
+
+                <a href="#progress">
+                    <span>▥</span> Progress
+                </a>
+
+                <a href="#calendar">
+                    <span>▦</span> Calendar
+                </a>
+
+                <a href="#wellness">
+                    <span>♡</span> Wellness
+                </a>
+
             </nav>
 
             <div class="hb-sidebar-bottom">
+
                 <div class="hb-sidebar-note">
                     <span>🌷</span>
                     <p>Bloom at your own pace. Every little effort counts.</p>
                 </div>
-                <form asp-area="Identity" asp-page="/Account/Logout"
+
+                <form asp-area="Identity"
+                      asp-page="/Account/Logout"
                       asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
-                      method="post" class="hb-logout-form">
-                    <button type="submit" class="hb-logout">↪ &nbsp; Logout</button>
+                      method="post"
+                      class="hb-logout-form">
+
+                    <button type="submit" class="hb-logout">
+                        ↪ &nbsp; Logout
+                    </button>
+
                 </form>
+
             </div>
+
         </aside>
 
 
@@ -55,23 +114,29 @@
 
             <!-- TOP BAR -->
             <header class="hb-topbar">
+
                 <div>
                     <p class="hb-date-label">YOUR PERSONAL SPACE</p>
                     <h2>Dashboard</h2>
                 </div>
 
                 <div class="hb-profile">
+
                     <div class="hb-profile-flower">✿</div>
+
                     <div>
                         <strong>@(User.Identity?.Name ?? "Bloom User")</strong>
                         <small>HabitBloom Member</small>
                     </div>
+
                 </div>
+
             </header>
 
 
             <!-- WELCOME SECTION -->
             <section class="hb-welcome">
+
                 <div>
                     <p class="hb-eyebrow">A FRESH START, A NEW DAY</p>
                     <h1>Good Morning, Bloom! <span>🌷</span></h1>
@@ -82,6 +147,7 @@
                     <span>✿</span>
                     <p>GROW THROUGH<br>WHAT YOU GO THROUGH</p>
                 </div>
+
             </section>
 
 
@@ -95,132 +161,237 @@
 
             <!-- OVERVIEW CARDS -->
             <section class="hb-overview">
+
                 <div class="hb-overview-card">
+
                     <div class="hb-overview-icon sage-icon">🌱</div>
+
                     <div>
                         <small>TOTAL HABITS</small>
-                        <h3>04</h3>
+                        <h3>@totalHabits.ToString("00")</h3>
                         <p>Your daily routines</p>
                     </div>
+
                 </div>
 
+
                 <div class="hb-overview-card">
+
                     <div class="hb-overview-icon pink-icon">🌸</div>
+
                     <div>
                         <small>COMPLETED TODAY</small>
-                        <h3 id="completedNumber">02</h3>
-                        <p id="completedMessage">Keep going!</p>
+                        <h3 id="completedNumber">@completedToday.ToString("00")</h3>
+
+                        <p>
+                            @(totalHabits > 0 && completedToday == totalHabits
+                                                        ? "All goals achieved!"
+                                                        : "Keep going!")
+                        </p>
                     </div>
+
                 </div>
 
+
                 <div class="hb-overview-card">
+
                     <div class="hb-overview-icon maroon-icon">🔥</div>
+
                     <div>
                         <small>CURRENT STREAK</small>
-                        <h3>05</h3>
-                        <p>Days in a row</p>
+                        <h3>@currentStreak</h3>
+
+                        <p>
+                            @(currentStreak == 1 ? "Day in a row" : "Days in a row")
+                        </p>
                     </div>
+
                 </div>
+
             </section>
 
 
             <!-- MAIN DASHBOARD GRID -->
             <section class="hb-main-grid">
 
+
                 <!-- DAILY BALANCE -->
                 <div class="hb-panel hb-balance">
+
                     <div class="hb-panel-heading">
+
                         <div>
                             <h3>Daily Balance</h3>
                             <p>Your overall wellness</p>
                         </div>
+
                         <span class="hb-tag">Today</span>
+
                     </div>
 
                     <div class="hb-balance-circle">
+
                         <div class="hb-balance-inner">
-                            <span>75%</span>
-                            <small>IN BALANCE</small>
+                            <span>@habitProgress%</span>
+                            <small>COMPLETED</small>
                         </div>
+
                     </div>
 
                     <div class="hb-balance-legend">
-                        <span><i class="legend-mind"></i> Mind 40%</span>
-                        <span><i class="legend-body"></i> Body 30%</span>
-                        <span><i class="legend-energy"></i> Energy 30%</span>
+                        <span><i class="legend-mind"></i> Mind</span>
+                        <span><i class="legend-body"></i> Body</span>
+                        <span><i class="legend-energy"></i> Energy</span>
                     </div>
+
                 </div>
 
 
                 <!-- TODAY'S GOALS -->
                 <div class="hb-panel hb-goals" id="habits">
+
                     <div class="hb-panel-heading">
+
                         <div>
                             <h3>Today's Goals</h3>
                             <p>Make today count</p>
                         </div>
-                        <span class="hb-flower-icon">✿</span>
+
+                        <a asp-controller="Habit"
+                           asp-action="Create"
+                           class="hb-flower-icon"
+                           title="Add a new habit">
+                            ✿
+                        </a>
+
                     </div>
+
 
                     <div class="hb-habit-progress">
+
                         <div class="hb-habit-progress-track">
-                            <div id="habitProgressBar"></div>
+                            <div style="width: @(habitProgress)%"></div>
                         </div>
-                        <small id="habitProgressText">2 of 4 completed</small>
+
+                        <small>
+                            @completedToday of @totalHabits completed
+                        </small>
+
                     </div>
+
 
                     <div class="hb-goal-list">
-                        <label class="hb-goal-item">
-                            <input type="checkbox" class="hb-goal-check" checked>
-                            <span class="hb-custom-check"></span>
-                            <span>10 min meditation</span>
-                        </label>
 
-                        <label class="hb-goal-item">
-                            <input type="checkbox" class="hb-goal-check" checked>
-                            <span class="hb-custom-check"></span>
-                            <span>Drink 8 glasses of water</span>
-                        </label>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var habit in Model)
+                            {
+                                bool isCompleted = completedHabitIds.Contains(habit.HabitId);
 
-                        <label class="hb-goal-item">
-                            <input type="checkbox" class="hb-goal-check">
-                            <span class="hb-custom-check"></span>
-                            <span>Read for 20 minutes</span>
-                        </label>
+                                <div class="hb-goal-item">
 
-                        <label class="hb-goal-item">
-                            <input type="checkbox" class="hb-goal-check">
-                            <span class="hb-custom-check"></span>
-                            <span>Sleep before 11 PM</span>
-                        </label>
+                                    <span class="hb-custom-check">
+                                        @(isCompleted ? "✓" : "")
+                                    </span>
+
+                                    <span style="@(isCompleted ? "text-decoration: line-through;" : "")">
+                                        @habit.Name
+                                    </span>
+
+                                    @if (isCompleted)
+                                    {
+                                        <form asp-controller="Dashboard"
+                                              asp-action="UndoComplete"
+                                              method="post"
+                                              style="margin-left:auto;">
+
+                                            <input type="hidden" name="id" value="@habit.HabitId" />
+
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                Undo
+                                            </button>
+
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-controller="Dashboard"
+                                              asp-action="Complete"
+                                              method="post"
+                                              style="margin-left:auto;">
+
+                                            <input type="hidden" name="id" value="@habit.HabitId" />
+
+                                            <button type="submit" class="btn btn-sm btn-outline-success">
+                                                Complete
+                                            </button>
+
+                                        </form>
+                                    }
+
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>You haven't added any habits yet.</p>
+
+                            <a asp-controller="Habit" asp-action="Create">
+                                Add your first habit
+                            </a>
+                        }
+
                     </div>
 
-                    <p class="hb-goal-footer">Every completed habit is a little victory! ♡</p>
+                    <p class="hb-goal-footer">
+                        Every completed habit is a little victory! ♡
+                    </p>
+
                 </div>
 
 
                 <!-- CALENDAR -->
                 <div class="hb-panel hb-calendar" id="calendar">
+
                     <div class="hb-panel-heading">
+
                         <div>
                             <h3>Calendar</h3>
                             <p>Your monthly overview</p>
                         </div>
+
                         <span>▦</span>
+
                     </div>
+
 
                     <div class="hb-calendar-month">
+
                         <button type="button" id="prevMonth">‹</button>
-                        <strong id="calendarMonth">November 2026</strong>
+
+                        <strong id="calendarMonth"></strong>
+
                         <button type="button" id="nextMonth">›</button>
+
                     </div>
+
 
                     <div class="hb-calendar-grid" id="calendarGrid">
-                        <span>Su</span><span>Mo</span><span>Tu</span>
-                        <span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+
+                        <span>Su</span>
+                        <span>Mo</span>
+                        <span>Tu</span>
+                        <span>We</span>
+                        <span>Th</span>
+                        <span>Fr</span>
+                        <span>Sa</span>
+
                     </div>
 
-                    <p class="hb-calendar-note">✿ A new day is a new opportunity.</p>
+                    <p class="hb-calendar-note">
+                        ✿ A new day is a new opportunity.
+                    </p>
+
                 </div>
 
             </section>
@@ -228,160 +399,171 @@
 
             <!-- WELLNESS CARDS -->
             <section class="hb-wellness-section" id="wellness">
+
                 <div class="hb-section-title">
+
                     <div>
                         <h2>Your Wellness Corner</h2>
                         <p>Take care of yourself, inside and out.</p>
                     </div>
+
                     <span>♡</span>
+
                 </div>
+
 
                 <div class="hb-wellness-grid">
 
+
                     <!-- ACTIVITY -->
                     <div class="hb-panel hb-wellness-card">
+
                         <div class="hb-wellness-heading">
                             <span>👟</span>
                             <small>DAILY ACTIVITY</small>
                         </div>
+
                         <h3>5,240 <small>steps</small></h3>
+
                         <div class="hb-activity-track">
                             <span></span>
                         </div>
+
                         <p>You're making progress. Keep moving!</p>
+
                     </div>
+
 
                     <!-- WATER -->
                     <div class="hb-panel hb-wellness-card">
+
                         <div class="hb-wellness-heading">
                             <span>💧</span>
                             <small>WATER INTAKE</small>
                         </div>
+
                         <h3 id="waterCount">5 / 8 <small>glasses</small></h3>
+
                         <div class="hb-water-controls">
+
                             <button type="button" id="waterMinus">−</button>
+
                             <div class="hb-water-track">
                                 <span id="waterProgress"></span>
                             </div>
+
                             <button type="button" id="waterPlus">+</button>
+
                         </div>
-                        <p id="waterMessage">Stay hydrated throughout the day.</p>
+
+                        <p id="waterMessage">
+                            Stay hydrated throughout the day.
+                        </p>
+
                     </div>
+
 
                     <!-- MEDITATION -->
                     <div class="hb-panel hb-wellness-card hb-meditation-card">
+
                         <div class="hb-wellness-heading">
                             <span>🧘</span>
                             <small>MINDFUL MOMENT</small>
                         </div>
+
                         <h3>Find your calm.</h3>
-                        <p>Take a little time to breathe and reset your mind.</p>
+
+                        <p>
+                            Take a little time to breathe and reset your mind.
+                        </p>
+
                         <span class="hb-meditation-flower">✿</span>
+
                     </div>
+
 
                     <!-- SLEEP -->
                     <div class="hb-panel hb-wellness-card">
+
                         <div class="hb-wellness-heading">
                             <span>🌙</span>
                             <small>SLEEP QUALITY</small>
                         </div>
+
                         <h3>7h 20m <small>rest</small></h3>
+
                         <div class="hb-sleep-track">
                             <span></span>
                         </div>
+
                         <p>A good night's rest helps you bloom.</p>
+
                     </div>
 
                 </div>
+
             </section>
 
 
             <!-- WEEKLY PROGRESS -->
             <section class="hb-panel hb-weekly" id="progress">
+
                 <div class="hb-section-title">
+
                     <div>
                         <h2>Weekly Progress</h2>
                         <p>Celebrate how far you've come.</p>
                     </div>
+
                     <span class="hb-tag">This Week</span>
+
                 </div>
 
+
                 <div class="hb-chart">
-                    <div class="hb-chart-column">
-                        <div class="hb-chart-bar" style="height:65%"></div>
-                        <small>Mon</small>
-                    </div>
-                    <div class="hb-chart-column">
-                        <div class="hb-chart-bar" style="height:45%"></div>
-                        <small>Tue</small>
-                    </div>
-                    <div class="hb-chart-column">
-                        <div class="hb-chart-bar" style="height:85%"></div>
-                        <small>Wed</small>
-                    </div>
-                    <div class="hb-chart-column">
-                        <div class="hb-chart-bar" style="height:70%"></div>
-                        <small>Thu</small>
-                    </div>
-                    <div class="hb-chart-column">
-                        <div class="hb-chart-bar" style="height:55%"></div>
-                        <small>Fri</small>
-                    </div>
-                    <div class="hb-chart-column">
-                        <div class="hb-chart-bar" style="height:95%"></div>
-                        <small>Sat</small>
-                    </div>
-                    <div class="hb-chart-column">
-                        <div class="hb-chart-bar" style="height:35%"></div>
-                        <small>Sun</small>
-                    </div>
+
+                    @for (int i = 0; i < 7; i++)
+                    {
+                        int percentage = i < weeklyProgress.Count
+                        ? weeklyProgress[i]
+                        : 0;
+
+                        <div class="hb-chart-column">
+
+                            <div class="hb-chart-bar"
+                                 style="height: @(percentage)%">
+                            </div>
+
+                            <small>@weekDays[i]</small>
+                            <small>@percentage%</small>
+
+                        </div>
+                    }
+
                 </div>
+
             </section>
 
 
+            <!-- FOOTER -->
             <footer class="hb-footer">
                 ❀ HabitBloom — Small steps. Beautiful growth.
             </footer>
 
         </main>
+
     </div>
 
 
+    <!-- JAVASCRIPT -->
     <script>
-        // UPDATE HABIT COMPLETION
-        const goalCheckboxes = document.querySelectorAll(".hb-goal-check");
-        const completedNumber = document.getElementById("completedNumber");
-        const completedMessage = document.getElementById("completedMessage");
-        const progressBar = document.getElementById("habitProgressBar");
-        const progressText = document.getElementById("habitProgressText");
-
-        function updateHabits() {
-            const total = goalCheckboxes.length;
-            const completed = document.querySelectorAll(".hb-goal-check:checked").length;
-            const percentage = (completed / total) * 100;
-
-            completedNumber.textContent = String(completed).padStart(2, "0");
-            progressBar.style.width = percentage + "%";
-            progressText.textContent = completed + " of " + total + " completed";
-
-            if (completed === total) {
-                completedMessage.textContent = "All goals achieved!";
-            } else {
-                completedMessage.textContent = "Keep going!";
-            }
-        }
-
-        goalCheckboxes.forEach(function (checkbox) {
-            checkbox.addEventListener("change", updateHabits);
-        });
-
-        updateHabits();
-
 
         // WATER TRACKER
+
         let glasses = 5;
 
         function updateWater() {
+
             document.getElementById("waterCount").innerHTML =
                 glasses + " / 8 <small>glasses</small>";
 
@@ -389,35 +571,55 @@
                 (glasses / 8 * 100) + "%";
 
             document.getElementById("waterMessage").textContent =
-                glasses === 8 ? "Daily water goal achieved! 🌸" :
-                    "Stay hydrated throughout the day.";
+                glasses === 8
+                    ? "Daily water goal achieved! 🌸"
+                    : "Stay hydrated throughout the day.";
+
         }
 
+
         document.getElementById("waterPlus").addEventListener("click", function () {
+
             if (glasses < 8) {
                 glasses++;
                 updateWater();
             }
+
         });
 
+
         document.getElementById("waterMinus").addEventListener("click", function () {
+
             if (glasses > 0) {
                 glasses--;
                 updateWater();
             }
+
         });
+
 
         updateWater();
 
 
         // CALENDAR
+
+        const completedDates = @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(
+                                ViewBag.CompletedDates ?? new List<string>()
+                        )
+                );
+
         const calendarGrid = document.getElementById("calendarGrid");
         const calendarMonth = document.getElementById("calendarMonth");
 
-        let displayedMonth = 10;
-        let displayedYear = 2026;
+        const today = new Date();
+
+        let displayedMonth = today.getMonth();
+        let displayedYear = today.getFullYear();
+
 
         function renderCalendar() {
+
             const monthNames = [
                 "January", "February", "March", "April",
                 "May", "June", "July", "August",
@@ -427,58 +629,114 @@
             calendarMonth.textContent =
                 monthNames[displayedMonth] + " " + displayedYear;
 
+
             calendarGrid.innerHTML = `
-                <span>Su</span><span>Mo</span><span>Tu</span>
-                <span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                <span>Su</span>
+                <span>Mo</span>
+                <span>Tu</span>
+                <span>We</span>
+                <span>Th</span>
+                <span>Fr</span>
+                <span>Sa</span>
             `;
 
-            const firstDay = new Date(displayedYear, displayedMonth, 1).getDay();
-            const daysInMonth = new Date(displayedYear, displayedMonth + 1, 0).getDate();
+
+            const firstDay =
+                new Date(displayedYear, displayedMonth, 1).getDay();
+
+            const daysInMonth =
+                new Date(displayedYear, displayedMonth + 1, 0).getDate();
+
 
             for (let i = 0; i < firstDay; i++) {
+
                 const blank = document.createElement("span");
                 calendarGrid.appendChild(blank);
+
             }
 
+
             for (let day = 1; day <= daysInMonth; day++) {
+
                 const dateButton = document.createElement("button");
+
                 dateButton.type = "button";
                 dateButton.textContent = day;
 
-                if (day === 10 && displayedMonth === 10 && displayedYear === 2026) {
+
+                const dateKey =
+                    displayedYear + "-" +
+                    String(displayedMonth + 1).padStart(2, "0") + "-" +
+                    String(day).padStart(2, "0");
+
+
+                // Mark dates with completed habits
+                if (completedDates.includes(dateKey)) {
+                    dateButton.classList.add("has-completion");
+                }
+
+
+                // Highlight today's date
+                if (
+                    day === today.getDate() &&
+                    displayedMonth === today.getMonth() &&
+                    displayedYear === today.getFullYear()
+                ) {
                     dateButton.classList.add("selected-day");
                 }
 
+
+                // Select a calendar date
                 dateButton.addEventListener("click", function () {
+
                     calendarGrid.querySelectorAll("button").forEach(function (button) {
                         button.classList.remove("selected-day");
                     });
+
                     dateButton.classList.add("selected-day");
+
                 });
 
+
                 calendarGrid.appendChild(dateButton);
+
             }
+
         }
 
+
+        // Previous month
         document.getElementById("prevMonth").addEventListener("click", function () {
+
             displayedMonth--;
+
             if (displayedMonth < 0) {
                 displayedMonth = 11;
                 displayedYear--;
             }
+
             renderCalendar();
+
         });
 
+
+        // Next month
         document.getElementById("nextMonth").addEventListener("click", function () {
+
             displayedMonth++;
+
             if (displayedMonth > 11) {
                 displayedMonth = 0;
                 displayedYear++;
             }
+
             renderCalendar();
+
         });
 
+
         renderCalendar();
+
     </script>
 
 </body>
